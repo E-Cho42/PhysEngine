@@ -1,4 +1,5 @@
 #include "raylib.h"
+#include "rlgl.h"      // Required for rlSetClipPlanes
 #include "raymath.h"
 #include <vector>
 #include <cmath>
@@ -59,10 +60,21 @@ int main() {
         {"Neptune", 4495.1f, 2.46f,  59800.0f, DARKBLUE,  0.0f, {}}
     };
 
-    float sunRadius = 69.6f;
+    float sunRadius = 50.6f;
     bool cursorEnabled = false;
 
     SetTargetFPS(60);
+
+    // --- Generate stars ---
+    std::vector<Vector3> stars;
+    for (int i = 0; i < 2000; i++) {
+        // Random position in a large cube around the solar system
+        stars.push_back({
+            (float)GetRandomValue(-5000, 5000),
+            (float)GetRandomValue(-5000, 5000),
+            (float)GetRandomValue(-5000, 5000)
+        });
+    }
 
     while (!WindowShouldClose()) {
 
@@ -125,7 +137,17 @@ int main() {
         // --- Draw ---
         BeginDrawing();
             ClearBackground(BLACK);
+
+            // INCREASE RENDER DISTANCE
+            // 0.1f = Near plane, 10000.0f = Far plane
+            rlSetClipPlanes(0.1f, 10000.0f);
+
             BeginMode3D(camera);
+
+                // --- Draw background stars ---
+                for (const auto &star : stars) {
+                    DrawPoint3D(star, WHITE);
+                }
 
                 // Sun
                 DrawSphere({ 0, 0, 0 }, sunRadius, GOLD);
